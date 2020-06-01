@@ -102,7 +102,8 @@ EOTEXT
     //      Project Foo
     //
     // Projects within each group are grouped by their ownership strength
-    // ("strong" before "weak") and then listed alphabetically.
+    // ("strong" before "weak") and then listed alphabetically. Weak owners
+    // aren't shown if there are stronger owners available.
     while (!empty($bypath)) {
       $projects = reset($bypath);
 
@@ -112,11 +113,18 @@ EOTEXT
           unset($bypath[$path]);
         }
       }
-
+      
+      $prevProjectDominion = NULL;
       foreach (isort($projects, 'dominion') as $project) {
-        echo phutil_console_format("  [%6s] %s\n",
-          $project['dominion']['value'],
-          $this->linkify($project['name'], $project['url']));
+         $dominion = $project['dominion']['value'];
+         if ($prevProjectDominion == 'strong' && $dominion == 'weak') {
+           break;
+         }
+         echo phutil_console_format("  %s\n",
+           $this->linkify(
+             ($dominion == "weak" ? $this->gray($project['name']) : $project['name']),
+             $project['url']));
+           $prevProjectDominion = $dominion;
       }
     }
   }
@@ -177,5 +185,9 @@ EOTEXT
   // https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
   private function linkify($text, $url) {
     return (!empty($url)) ? "\e]8;;$url\e\\$text\e]8;;\e\\" : $text;
+  }
+    
+  private function gray($text) {
+    return "\033[38;5;8m$text\033[0m";
   }
 }
