@@ -124,7 +124,7 @@ EOTEXT
            $this->linkify(
              ($dominion == "weak" ? $this->gray($project['name']) : $project['name']),
              $project['url']));
-           $prevProjectDominion = $dominion;
+         $prevProjectDominion = $dominion;
       }
     }
   }
